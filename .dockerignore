@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.next
+.git
+.env
+.env.*
+!.env.example
+tmp
+.claude
+.agents
+tests
+docs

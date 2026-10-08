@@ -1,0 +1,26 @@
+{
+  "name": "acc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agent Control Center: per-action governance for AI agents. GIAM stays the identity authority.",
+  "engines": { "node": ">=22" },
+  "workspaces": ["packages/*", "backend", "frontend"],
+  "scripts": {
+    "build:packages": "npm run build -w @ist-sec/mongo-compat",
+    "build:backend": "npm run build -w @acc/backend",
+    "build:frontend": "npm run build -w @acc/frontend",
+    "build": "npm run build:packages && npm run build:backend && npm run build:frontend",
+    "type-check": "npm run build:packages && npm run type-check -w @acc/backend && npm run type-check -w @acc/frontend",
+    "test": "vitest run",
+    "dev:backend": "npm run dev -w @acc/backend",
+    "dev:frontend": "npm run dev -w @acc/frontend",
+    "setup:db": "npm run setup:db -w @acc/backend",
+    "setup:db:seed": "npm run seed:db -w @acc/backend",
+    "deploy:docker": "docker compose up --build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "typescript": "5.9.3",
+    "vitest": "5.0.3"
+  }
+}

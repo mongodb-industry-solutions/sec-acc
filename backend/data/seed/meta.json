@@ -1,0 +1,11 @@
+{
+  "collection": "meta",
+  "requiresSchema": 1,
+  "documents": [
+    {
+      "_id": "dispositions",
+      "schemaVersion": 1,
+      "values": ["ALLOW", "DENY", "OBSERVE", "ESCALATE"]
+    }
+  ]
+}

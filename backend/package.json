@@ -1,0 +1,27 @@
+{
+  "name": "@acc/backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ACC backend: one Fastify API (bin/server.ts) hosting the pap, pep, pip, prp, pdp, mgf and audit modules in process.",
+  "main": "dist/bin/server.js",
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "dev": "tsx watch bin/server.ts",
+    "start": "node dist/bin/server.js",
+    "setup:db": "tsx bin/setup.ts",
+    "seed:db": "tsx bin/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/swagger": "9.9.1",
+    "@ist-sec/mongo-compat": "3.3.0",
+    "mongodb": "7.7.0",
+    "dotenv": "17.4.2",
+    "fastify": "5.12.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

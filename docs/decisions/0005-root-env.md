@@ -1,0 +1,4 @@
+# 0005 Optional shared root .env
+Status: accepted (existing design preserved).
+Decision: use `dotenv` (as GIAM does), no custom env package. Backend `src/shared/services/env.service.ts` and `frontend/next.config.ts` load the root `.env` by paths relative to their own file (not cwd), covering tsx and compiled layouts; `quiet: true` silences the v17 banner. Missing file is not an error; runtime variables win (dotenv does not override). The scaffold package `@acc/env` was removed for this; the cost is one small loader per app. Frontend (`next.config.ts`) and backend use the same file. No per-project env files. `.env.*` ignored except `.env.example`. Compose passes only needed variables and does not require the file.
+Pending: `.env.example` still lists the removed `ACC_SERVICE` and the old service text; remove it by hand (file is protected from tooling).

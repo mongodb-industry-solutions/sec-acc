@@ -1,0 +1,25 @@
+# The only Compose file. Two runtimes (docs/decisions/0001). Does not assume a root .env: unset
+# values interpolate to empty and the backend fails naming the missing variable.
+# MongoDB is external (atlas|ea|ce); no database container is declared.
+services:
+  acc-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3001"
+      MONGODB_TYPE: ${MONGODB_TYPE:-}
+      MONGODB_VERSION: ${MONGODB_VERSION:-}
+      MONGODB_URI: ${MONGODB_URI:-}
+      MONGODB_DB: ${MONGODB_DB:-}
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  acc-frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    # Only NEXT_PUBLIC_ values may reach the browser. No secrets here.
+    ports:
+      - "127.0.0.1:3000:3000"
