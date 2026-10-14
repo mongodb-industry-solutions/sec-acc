@@ -11,16 +11,16 @@
 
 This document defines the formal business model, system ownership boundaries, logical module specifications, and **internal runtime flows** for the **Agent Control Center (ACC)**.
 
-ACC operates as a specialized control plane and runtime enforcement layer for Agentic Artificial Intelligence (AI) Systems operating in regulated environments. It governs whether a particular agent, acting with a specific identity and authority, may perform a specific action on a protected resource within a specific business context. ACC implements a two-stage evaluation model, coupling deterministic **Attribute-Based Access Control (ABAC) / eXtensible Access Control Markup Language (XACML) 3.0** authorization (evaluated locally or via standardized **OpenID AuthZEN Architecture** endpoints exposed by the General Identity and Access Management system, GIAM) with domain-specific, non-deterministic **Context Guardrails (Model AI Governance Framework, MGF, and Context Guardrail Subsystem, CGS)** without violating system of record boundaries.
+ACC operates as a specialized control plane and runtime enforcement layer for Agentic Artificial Intelligence (AI) Systems operating in regulated environments. It governs whether a particular agent, acting with a specific identity and authority, may perform a specific action on a protected resource within a specific business context. ACC implements a two-stage evaluation model, coupling deterministic **Attribute-Based Access Control (ABAC) / eXtensible Access Control Markup Language (XACML) 3.0** authorization (evaluated locally or via standardized **OpenID AuthZEN Architecture** endpoints exposed by the General Identity and Access Management system, GIAM) with domain-specific, non-deterministic **Context Guardrails** (provided by the Context Guardrail Subsystem, CGS) without violating system of record boundaries.
 
 ### Core Architectural Separation
 
 -   **General Identity and Access Management (GIAM):** System of Record for human, agent, and workload identities, credential issuance, Open Authorization (OAuth) 2.0 / OpenID Connect (OIDC) authentication, Request for Comments (RFC) 8693 token exchange, delegation chains, baseline access, canonical deterministic policy storage, and standardized **AuthZEN Policy Enforcement Point / Policy Decision Point (PEP/PDP) Application Programming Interface (API) endpoints**.
 -   **Agent Control Center (ACC):** Control plane for workspace governance, agent onboarding, policy governance workflows, runtime action interception, risk-based disposition, human-in-the-loop (HITL) escalation coordination, and tamper-evident decision auditing.
--   **Context Guardrail Subsystem (MGF / CGS):** Specialized, non-deterministic AI governance engine assessing whether a proposed action makes semantic and contextual sense within a specific business domain.
+-   **Context Guardrail Subsystem (CGS):** Specialized, non-deterministic AI governance engine assessing whether a proposed action makes semantic and contextual sense within a specific business domain.
 -   **Agentic Systems & Protected Targets:** Agentic workloads that request per-action execution permits from ACC and execute approved transactions against protected targets, APIs, tools, or Model Context Protocol (MCP) servers.
 
-Diagram key: SCIM is the System for Cross-domain Identity Management; mTLS is mutual Transport Layer Security; SPIFFE is the Secure Production Identity Framework for Everyone and SPIRE its SPIFFE Runtime Environment; PEP is the Policy Enforcement Point, PIP the Policy Information Point, PRP the Policy Retrieval Point, PDP the Policy Decision Point and PAP the Policy Administration Point; HITL is human-in-the-loop; ID is identity.
+Diagram key: SCIM is the System for Cross-domain Identity Management; mTLS is mutual Transport Layer Security; SPIFFE is the Secure Production Identity Framework for Everyone and SPIRE its SPIFFE Runtime Environment; PEP is the Policy Enforcement Point, PIP the Policy Information Point, PRP the Policy Retrieval Point, PDP the Policy Decision Point and PAP the Policy Administration Point; MGF is the agent lifecycle governance module, aligned to the Infocomm Media Development Authority (IMDA) Model AI Governance Framework for Agentic AI, and is distinct from the CGS; HITL is human-in-the-loop; ID is identity.
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -102,7 +102,7 @@ Each edge below is labelled with what actually travels along it. The upper half 
            ▼                                        │ onboards the agent,            ▼
  ┌─────────────────────────┐                        │ declares its tools   ┌─────────────────────────┐
  │          GIAM           │                        │ and risk class       │    Context Guardrail    │
- │  Identity, delegation,  │                        │                      │       (CGS / MGF)       │
+ │  Identity, delegation,  │                        │                      │          (CGS)          │
  │  tokens, canonical      │                        ▼                      │  Semantic intent,       │
  │  deterministic policy,  │            ┌─────────────────────────┐        │  anomaly and injection  │
  │  AuthZEN PDP            │            │     Agentic System      │        │  assessment             │
@@ -468,7 +468,7 @@ ACC modules align strictly with the **XACML 3.0 Reference Architecture** (using 
 │       (Skip Stage 2 CGS Call)         │ STAGE 2: Contextual Guardrail Check  │   │
 │                                       │ (High Cost / Deep Context Inspection)│   │
 │                                       │                                      │   │
-│                                       │ [PIP: CGS/MGF Engine] ──► Risk Score │   │
+│                                       │ [PIP: CGS Engine]     ──► Risk Score │   │
 │                                       └───────────────────┬──────────────────┘   │
 │                                                           │                      │
 └───────────────────────────────────────────────────────────┼──────────────────────┘
@@ -487,7 +487,7 @@ ACC modules align strictly with the **XACML 3.0 Reference Architecture** (using 
 | **PRP (Policy Retrieval Point)** | Adapter layer communicating with GIAM AuthZEN endpoints (e.g., `POST /access/v1/evaluation`) or retrieving active XACML policies. | Not an independent policy database or duplicate rule evaluator. Caching must follow strict GIAM versioning and invalidation hooks. |
 | **PDP (Policy Decision Point)** | Orchestrates 2-stage decision evaluation, combines deterministic checks and contextual risk signals into an ACC disposition. | Does not delegate final decision to generative models. Preserves separation between deterministic rules and non-deterministic CGS signals. |
 | **PAP (Policy Administration Point)** | Provides policy authoring, review, governance, and submission workflows in ACC. | Registers approved canonical policy changes through GIAM services. ACC stores workflow evidence, not a competing rule store. |
-| **MGF & Audit Module** | Connects agent lifecycle governance (MGF) and records tamper-evident, correlated decision and enforcement provenance. | Preserves non-repudiable audit trails while minimizing raw secrets, tokens, prompts, or sensitive payloads. |
+| **MGF & Audit Module** | Connects agent lifecycle governance, aligned to the IMDA Model AI Governance Framework (MGF), and records tamper-evident, correlated decision and enforcement provenance. | Preserves non-repudiable audit trails while minimizing raw secrets, tokens, prompts, or sensitive payloads. |
 
 ---
 
@@ -504,7 +504,7 @@ The runtime evaluation strictly separates deterministic authorization from conte
 
 ### 4.2 Truth Table (PDP Disposition Logic)
 
-| GIAM Identity & Token | PRP / AuthZEN Policy | SAFR Hard Limits | CGS / MGF Result | XACML / AuthZEN Decision | ACC Disposition | PEP Execution Action |
+| GIAM Identity & Token | PRP / AuthZEN Policy | SAFR Hard Limits | CGS Result | XACML / AuthZEN Decision | ACC Disposition | PEP Execution Action |
 | --- | --- | --- | --- | --- | --- | --- |
 | **Invalid / Revoked** | Any | Any | _Not Evaluated_ | `Deny` / `false` | `DENY` | Hard Block. Generic auth error returned. |
 | Valid | **Expired / Missing** | Any | _Not Evaluated_ | `Deny` / `false` | `DENY` | Hard Block (Fail Closed). |
