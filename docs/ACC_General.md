@@ -219,21 +219,21 @@ In ACC, `ESCALATE` is the official decision disposition returned by the PDP when
 
 ### 5.1 Step-by-Step Internal Execution Protocol
 
-1.  **Interception:** The Agentic System invokes a tool/API. The **PEP Gateway** intercepts the call at the boundary.
-2.  **Envelope Construction:** PEP converts the request into a Governance Envelope formatted as a XACML 3.0 JSON or AuthZEN REST payload containing subject, resource, action, and context attributes.
-3.  **Identity & Context Enrichment:** PDP queries **PIP (GIAM)** to validate OAuth claims, RFC 8693 `actor_token` / `subject_token` delegation integrity, and SPIFFE workload attestation.
-4.  **Policy Retrieval / AuthZEN Call:** PDP queries **PRP / GIAM AuthZEN API** (`POST /access/v1/evaluation`). GIAM evaluates canonical deterministic rules and returns a structured decision.
-5.  **Stage 1 Evaluation:** PDP combines GIAM AuthZEN output with SAFR hard financial limits and velocity rules.
-    -   _Branch A (Stage 1 Fail):_ PDP generates `Decision: "Deny"`, writes an audit event to the Ledger, and returns a `DENY` disposition to the PEP. **Execution terminates (<15ms).**
-    -   _Branch B (Stage 1 Escalate):_ PDP generates `Decision: "Indeterminate"`, maps this to an **`ESCALATE`** disposition, creates a HITL ticket, writes an audit event, and returns a **`PENDING`** operational state to the PEP. **Execution halts awaiting human review.**
-    -   _Branch C (Stage 1 Pass):_ PDP advances to Stage 2 contextual evaluation.
-6.  **Stage 2 Evaluation:** PDP queries **PIP (CGS)**, passing action parameters and reasoning traces. CGS runs semantic validation, prompt injection analysis, and context anomaly scoring. Returns a `contextRiskScore`.
-7.  **Final Synthesis:** PDP combines Stage 1 and Stage 2 outputs:
-    -   If CGS passes → `Decision: "Permit"`. PDP signs a single-use Execution Permit containing `nonce`, `hash(params)`, `expiry`, and `policy_version`.
-    -   If CGS fails → `Decision: "Deny"` (`DENY` disposition).
-    -   If CGS flags a warning → `Decision: "Indeterminate"` (`ESCALATE` disposition → `PENDING` operational state).
-8.  **Audit Logging:** PDP asynchronously writes complete decision provenance and evaluation traces to the **Audit Ledger**.
-9.  **Enforcement:** PEP receives response. If `Permit`, PEP appends the signed Execution Permit header and routes call to Protected Target. If `Deny` or `Pending`, PEP firmly blocks call.
+1. **Interception:** The Agentic System invokes a tool/API. The **PEP Gateway** intercepts the call at the boundary.
+2. **Envelope Construction:** PEP converts the request into a Governance Envelope formatted as a XACML 3.0 JSON or AuthZEN REST payload containing subject, resource, action, and context attributes.
+3. **Identity & Context Enrichment:** PDP queries **PIP (GIAM)** to validate OAuth claims, RFC 8693 `actor_token` / `subject_token` delegation integrity, and SPIFFE workload attestation.
+4. **Policy Retrieval & AuthZEN Call:** PDP invokes the **PRP (Policy Retrieval Point)** to resolve the active policy subset stored within the **GIAM Policy Repository** for the specific workspace and use case. These policies designed and configured during setup via the **PAP (Policy Administration Point)** by business domain specialists consolidate canonical deterministic rules, SAFR hard financial limits, and velocity constraints. PDP executes evaluation against the **GIAM AuthZEN API** (`POST /access/v1/evaluation`).
+5. **Stage 1 Evaluation (Deterministic & Hard Limits):** PDP processes the evaluation returned by GIAM for the workspace-scoped policy subset:
+    - _Branch A (Stage 1 Fail):_ If rules (including SAFR financial limits or velocity thresholds) are breached, PDP generates `Decision: "Deny"`, writes an audit event to the Ledger, and returns a `DENY` disposition to the PEP. **Execution terminates (<15ms).**
+    - _Branch B (Stage 1 Escalate):_ If ambiguity or escalation triggers are met, PDP generates `Decision: "Indeterminate"`, maps this to an **`ESCALATE`** disposition, creates a HITL ticket, writes an audit event, and returns a **`PENDING`** operational state to the PEP. **Execution halts awaiting human review.**
+    - _Branch C (Stage 1 Pass):_ If all Stage 1 deterministic guardrails pass, PDP advances to Stage 2 contextual evaluation.
+6. **Stage 2 Evaluation:** PDP queries **PIP (CGS)**, passing action parameters and reasoning traces. CGS runs semantic validation, prompt injection analysis, and context anomaly scoring. Returns a `contextRiskScore`.
+7. **Final Synthesis:** PDP combines Stage 1 and Stage 2 outputs:
+    - If CGS passes → `Decision: "Permit"`. PDP signs a single-use Execution Permit containing `nonce`, `hash(params)`, `expiry`, and `policy_version`.
+    - If CGS fails → `Decision: "Deny"` (`DENY` disposition).
+    - If CGS flags a warning → `Decision: "Indeterminate"` (`ESCALATE` disposition → `PENDING` operational state).
+8. **Audit Logging:** PDP asynchronously writes complete decision provenance and evaluation traces to the **Audit Ledger**.
+9. **Enforcement:** PEP receives the response. If `Permit`, PEP appends the signed Execution Permit header and routes the call to the Protected Target. If `Deny` or `Pending`, PEP firmly blocks the call.
 
 ### 5.2 Sequence Diagrams for Core Business Processes
 
