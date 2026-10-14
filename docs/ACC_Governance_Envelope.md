@@ -1,9 +1,9 @@
 # ACC Governance Envelope & Execution Permit Specification
 
-**Document Title:** Agent Control Center (ACC) Governance Envelope, HTTP API & Execution Permit Specification
-**Document Version:** 3.2 (Comprehensive Schema Definitions, REST API Contracts & HITL Approval Workflows)
-**Status:** Canonical Reference Architecture
-**Standards Integration:** OpenID AuthZEN 1.0, XACML 3.0, Google AP2, RFC 8693 (Token Exchange), SPIFFE, RFC 7515 (Detached JWS), RFC 8785 (JCS)
+- **Document Title:** Agent Control Center (ACC) Governance Envelope, HTTP API & Execution Permit Specification
+- **Document Version:** 3.2 (Comprehensive Schema Definitions, REST API Contracts & HITL Approval Workflows)
+- **Status:** Canonical Reference Architecture
+- **Standards Integration:** OpenID AuthZEN 1.0, XACML 3.0, Google AP2, RFC 8693 (Token Exchange), SPIFFE, RFC 7515 (Detached JWS), RFC 8785 (JCS)
 
 ---
 

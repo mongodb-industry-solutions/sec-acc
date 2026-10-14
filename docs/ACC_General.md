@@ -1,9 +1,9 @@
 # ACC Business Model, Operating Architecture & Internal Component Flows
 
-**Document Title:** Agent Control Center (ACC) Business Model, Operating Architecture, and Internal Component Flows  
-**Document Version:** 2.6 (Comprehensive Canonical Specification, Process Sequence Diagrams & SAFR 2026 Integration)  
-**Status:** Canonical Reference Architecture  
-**Target Environments:** Regulated Financial Services, Banking, High-Consequence Agentic Workflows
+- **Document Title:** Agent Control Center (ACC) Business Model, Operating Architecture, and Internal Component Flows  
+- **Document Version:** 2.6 (Comprehensive Canonical Specification, Process Sequence Diagrams & SAFR 2026 Integration)  
+- **Status:** Canonical Reference Architecture  
+- **Target Environments:** Regulated Financial Services, Banking, High-Consequence Agentic Workflows
 
 ---
 
